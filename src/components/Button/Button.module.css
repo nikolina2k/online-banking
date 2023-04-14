@@ -5,9 +5,9 @@
   transition-property: background-color, border, box-shadow;
   transition-duration: 0.25s;
   transition-timing-function: ease;
-  color: #333333;
-  border: 1px solid #ffdd2d;
-  background-color: #ffdd2d;
+  color: black;
+  border: 1px solid rgb(110, 241, 110);
+  background-color: rgb(110, 241, 110);
   border-radius: 4px;
   padding: 12px 20px;
 }
