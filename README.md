@@ -4,7 +4,9 @@ This repository contains a frontend project which is a simple online banking UI.
 
 ## Technologies Used
 
-- React.js
+- TypeScript
+
+- React
 
 - Redux
 
