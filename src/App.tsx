@@ -1,79 +1,85 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-import Board from "./components/Board/Board";
-import NewAccountForm from "./components/NewAccountForm/NewAccountForm";
+import Board, { Account } from "./components/Board/Board";
+import TimelinePage from "./pages/TimelinePage";
+import AddNewCardPage from "./pages/AddNewCardPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 import styles from "./App.module.css";
 
-export const accounts = [
-  {
-    id: 1,
-    type: "debit",
-    amount: 20000.95,
-    currency: "RUB",
-    title: "Дебетовая карта *7711",
-  },
-  {
-    id: 2,
-    type: "debit",
-    amount: 600.2,
-    currency: "EUR",
-    title: "Дебетовая карта *8862",
-  },
-  {
-    id: 3,
-    type: "credit",
-    amount: 150000.19,
-    currency: "RUB",
-    title: "Кредитная карта *5234",
-    customTitle: "Кредитка",
-  },
-  {
-    id: 4,
-    type: "external",
-    title: "Привязанная карта *4670",
-  },
-  {
-    id: 5,
-    type: "loan",
-    amount: 900000.53,
-    currency: "RUB",
-    title: "Кредит",
-  },
-  {
-    id: 6,
-    type: "saving",
-    amount: 300000,
-    currency: "RUB",
-    title: "Вклад",
-  },
-];
+import {
+  loadAccountsAction,
+  addAccount,
+  loadAccountsSuccess,
+  loadAccountsFailureAction,
+} from "./redux/accounts/actions";
+import { getAccounts } from "./services/requestMock";
 
-class App extends Component<any, any> {
-  constructor(props) {
-    super(props);
+interface AppProps {
+  loadAccounts: () => void;
+  loadAccountsSuccess: (accounts: Account[]) => void;
+  loadAccountsFail: () => void;
+  addAccount: (payload: Account) => void;
+  accounts: Account[];
+}
 
-    this.state = {
-      accounts,
-    };
+class App extends Component<AppProps, any> {
+  componentDidMount() {
+    this.fetchAccounts();
   }
 
-  handleSubmit = (newAccount) => {
-    this.setState({
-      accounts: [...this.state.accounts, newAccount],
-    });
+  fetchAccounts = async () => {
+    this.props.loadAccounts();
+    try {
+      const accounts = await getAccounts();
+      this.props.loadAccountsSuccess(accounts);
+    } catch (error) {
+      this.props.loadAccountsFail();
+    }
   };
+
+  handleSubmit = (newAccount) => this.props.addAccount(newAccount);
+
+  renderTimelinePage = (routeProps) => (
+    <TimelinePage {...routeProps.match.params} accounts={this.props.accounts} />
+  );
+
+  renderAddNewCardPage = (routeProps) => (
+    <AddNewCardPage {...routeProps} handleSubmit={this.handleSubmit} />
+  );
 
   render() {
     return (
-      <Fragment>
-        <Board accounts={this.state.accounts} />
+      <Router>
+        <Board accounts={this.props.accounts} />
         <div className={styles.pageContent}>
-          <NewAccountForm handleSubmit={this.handleSubmit} />
+          <Switch>
+            <Route
+              path="/account/:accountId"
+              render={this.renderTimelinePage}
+            />
+            <Route
+              path="/actions/add_card"
+              render={this.renderAddNewCardPage}
+            />
+            <Route component={NotFoundPage} />
+          </Switch>
         </div>
-      </Fragment>
+      </Router>
     );
   }
 }
 
-export default App;
+const mapStateToProps = (state) => ({ accounts: state.accounts });
+const mapDispatchToProps = (dispatch) => ({
+  loadAccounts: () => dispatch(loadAccountsAction()),
+  loadAccountsSuccess: (accounts) => dispatch(loadAccountsSuccess(accounts)),
+  loadAccountsFail: () => dispatch(loadAccountsFailureAction()),
+  addAccount: (payload) => dispatch(addAccount(payload)),
+});
+
+export { App };
+
+export default connect(mapStateToProps, mapDispatchToProps)(App as any);
