@@ -37,7 +37,7 @@ const BoardItem: React.FC<BoardItemProps> = ({
   return (
     <div className={styles.item}>
       <div className={cn(styles.logo, styles[`logo_${type}`])}>
-        <CurrencySymbol currency={currency}></CurrencySymbol>
+        <CurrencySymbol currency={currency} />
       </div>
       <div className={styles.content}>
         <div className={styles.title}>{accountName}</div>

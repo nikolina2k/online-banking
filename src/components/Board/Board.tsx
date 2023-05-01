@@ -1,7 +1,10 @@
 import React from "react";
 import BoardItem, { AccountType } from "../BoardItem/BoardItem";
 import styles from "./Board.module.css";
+import itemStyles from "../BoardItem/BoardItem.module.css";
 import { Currency } from "../Money/Money";
+
+import { NavLink } from "react-router-dom";
 
 export interface Account {
   id?: number;
@@ -13,6 +16,7 @@ export interface Account {
 }
 
 const Board: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
+  accounts = accounts ?? [];
   const sortedAccounts = accounts.slice().sort((a, b) => {
     const typeOrder: Record<AccountType, number> = {
       debit: 1,
@@ -37,13 +41,31 @@ const Board: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
       return 0;
     }
   });
-  console.log(sortedAccounts);
 
   return (
     <div className={styles.board}>
       {sortedAccounts.map((account) => (
-        <BoardItem key={account.id} {...account} />
+        <NavLink
+          key={account.id}
+          className={styles.link}
+          activeClassName="activeItem"
+          to={`/account/${account.id}`}
+        >
+          <BoardItem key={account.id} {...account} />
+        </NavLink>
       ))}
+      <NavLink
+        to="/actions/add_card"
+        className={styles.link}
+        activeClassName="activeItem"
+      >
+        <div
+          className={itemStyles.item + " " + itemStyles.content}
+          style={{ justifyContent: "center", textAlign: "center" }}
+        >
+          Привязать карту
+        </div>
+      </NavLink>
     </div>
   );
 };
