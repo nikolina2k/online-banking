@@ -1,4 +1,4 @@
-# A simple online banking UI
+# Online banking UI
 
 This repository contains a frontend project which is a simple online banking UI.
 
